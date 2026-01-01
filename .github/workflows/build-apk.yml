@@ -16,15 +16,15 @@ jobs:
     runs-on: ubuntu-22.04
     
     steps:
-    - name: Checkout code
+    - name: Build APK
       uses: actions/checkout@v3
       
-    - name: Set up Python
+    - name: Build APK
       uses: actions/setup-python@v4
       with:
         python-version: "3.9"
         
-    - name: Install system dependencies
+    - name: Build APK
       run: |
         sudo apt-get update
         sudo apt-get install -y \
@@ -47,13 +47,13 @@ jobs:
           libltdl-dev \
           wget
         
-    - name: Install Buildozer
+    - name: Build APK
       run: |
         python -m pip install --upgrade pip setuptools virtualenv
         pip install --user buildozer cython==0.29.33
         echo "$HOME/.local/bin" >> $GITHUB_PATH
         
-    - name: Increase swap space
+    - name: Build APK
       run: |
         sudo fallocate -l 4G /swapfile
         sudo chmod 600 /swapfile
@@ -68,19 +68,19 @@ jobs:
         buildozer android debug
         echo "建置完成！"
         
-    - name: Upload APK artifact
+    - name: Build APK
       uses: actions/upload-artifact@v3
       with:
-        name: fruit-freshness-apk
+        name: Build APK
         path: bin/*.apk
         retention-days: 30
         
-    - name: Create Release
+    - name: Build APK
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, "refs/tags/")
       with:
         files: bin/*.apk
-        name: Release ${{ github.ref_name }}
+        name: Build APK
         body: |
           水果新鮮度診斷 App ${{ github.ref_name }}
           
@@ -99,3 +99,4 @@ jobs:
           - 部分功能為模擬實現
         draft: false
         prerelease: false
+
