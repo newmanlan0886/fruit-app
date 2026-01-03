@@ -5,26 +5,21 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
-    inputs:
-      version:
-        description: "版本號"
-        required: true
-        default: "1.0.0"
 
 jobs:
   build:
     runs-on: ubuntu-22.04
     
     steps:
-    - name: Build APK
+    - name: Checkout code
       uses: actions/checkout@v3
       
-    - name: Build APK
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: "3.9"
         
-    - name: Build APK
+    - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
@@ -44,59 +39,39 @@ jobs:
           cmake \
           libffi-dev \
           libssl-dev \
-          libltdl-dev \
-          wget
-        
-    - name: Build APK
-      run: |
-        python -m pip install --upgrade pip setuptools virtualenv
-        pip install --user buildozer cython==0.29.33
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-        
-    - name: Build APK
-      run: |
-        sudo fallocate -l 4G /swapfile
-        sudo chmod 600 /swapfile
-        sudo mkswap /swapfile
-        sudo swapon /swapfile
-        free -h
+          libltdl-dev
+        pip3 install --user --upgrade buildozer cython==0.29.33
         
     - name: Build APK
       run: |
         export PATH="$HOME/.local/bin:$PATH"
-        echo "開始建置 APK..."
+        echo "🚀 開始建置 APK..."
         buildozer android debug
-        echo "建置完成！"
+        echo "✅ 建置完成！"
         
-    - name: Build APK
+    - name: Upload APK artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Build APK
+        name: fruit-freshness-apk
         path: bin/*.apk
-        retention-days: 30
         
-    - name: Build APK
+    - name: Create Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, "refs/tags/")
       with:
         files: bin/*.apk
-        name: Build APK
+        name: Release ${{ github.ref_name }}
         body: |
           水果新鮮度診斷 App ${{ github.ref_name }}
           
-          ## 功能特點
-          - 拍照分析水果新鮮度
-          - 選擇圖片進行診斷
-          - 模擬分析結果顯示
+          功能特色：
+          - 簡單易用的介面
+          - 水果新鮮度分析
+          - 實用建議
           
-          ## 如何安裝
+          安裝說明：
           1. 下載此 APK 檔案
-          2. 在 Android 設定中允許安裝未知來源的應用程式
+          2. 允許安裝未知來源應用程式
           3. 安裝並執行
-          
-          ## 注意事項
-          - 這是測試版本
-          - 部分功能為模擬實現
         draft: false
         prerelease: false
-
